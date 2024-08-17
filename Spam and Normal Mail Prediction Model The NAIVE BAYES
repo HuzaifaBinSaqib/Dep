@@ -1,0 +1,42 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score, accuracy_score, recall_score, precision_score, log_loss
+from sklearn.naive_bayes import GaussianNB
+df = pd.read_csv("email.csv")
+df.head(10)
+
+df.info()
+df.describe()
+
+df["Category"].value_counts()
+
+num_ham = 4825
+num_spam = 747
+num_total = num_ham + num_spam
+output_1 = (num_ham / num_total)*100
+output_2 = (num_spam / num_total)*100
+print (output_1 , output_2)
+
+if output_1 >= 80 and output_1 <= 90 and output_2 >= 20 and output_2 <= 30 :
+    print("Sample is balanced")
+else:
+    print("Sample has imbalancing, model could have some errors")
+
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+df["Category"] = le.fit_transform(df["Category"])
+y = df["Category"]
+x = df.copy()
+x = x.drop("Message", axis=1)
+x_train, x_test, y_train, y_split = train_test_split(x , y , test_size = 0.25 , random_state = 42)
+gnb =GaussianNB()
+gnb.fit(x_train , y_train)
+y_pred = gnb.predict(x_test)
+
+print("Accuracy:" , '%.3f' % accuracy_score(y_split , y_pred))
+print("Precision:" , '%.3f' % precision_score(y_split , y_pred))
+print("Recall:" , '%.3f' % recall_score(y_split , y_pred))
+print("f1:" , '%.3f' % f1_score(y_split , y_pred))
